@@ -27,6 +27,15 @@ expApp.post('/registerDevice', function (req, res) {
   res.send("Done")
 })
 
+expApp.post('/deleteAccount', function (req, res) {
+  var indexToRemove = registrationTokens.indexOf(req.body.token);
+  if (indexToRemove !== -1) {
+  registrationTokens.splice(indexToRemove, 1);
+}
+  console.log("tokens: ", registrationTokens);
+  res.send("Done")
+})
+
 
 
 expApp.post('/sendPushNotifications', function (req, res) {
