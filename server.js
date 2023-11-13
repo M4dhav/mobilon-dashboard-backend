@@ -45,13 +45,25 @@ expApp.post('/registerDevice', function (req, res) {
 })
 
 expApp.post('/deleteAccount', function (req, res) {
-  var indexToRemove = registrationTokens.indexOf(req.body.token);
+  const tokenToRemove = req.body.token;
+  const indexToRemove = registrationTokens.indexOf(tokenToRemove);
+
   if (indexToRemove !== -1) {
-  registrationTokens.splice(indexToRemove, 1);
-}
-  console.log("tokens: ", registrationTokens);
-  res.send("Done")
-})
+    registrationTokens.splice(indexToRemove, 1);
+
+    // Remove the registration token from the database
+    tokensRef.orderByChild('token').equalTo(tokenToRemove).once('value', (snapshot) => {
+      snapshot.forEach((childSnapshot) => {
+        childSnapshot.ref.remove();
+      });
+    });
+
+    console.log('tokens: ', registrationTokens);
+    res.send('Done');
+  } else {
+    res.send('Token not found');
+  }
+});
 
 
 
