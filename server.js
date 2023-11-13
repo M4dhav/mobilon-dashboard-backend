@@ -9,11 +9,23 @@ const serviceAccount = require("./mobilon-service-account.json");
 PORT = 3000
 
 const app = admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://mobilon-2c8d0-default-rtdb.asia-southeast1.firebasedatabase.app/',
 });
 expApp.use(express.json());
 
-var registrationTokens = [];
+let registrationTokens = [];
+const db = admin.database();
+
+
+const tokensRef = db.ref('registrationTokens');
+tokensRef.once('value', (snapshot) => {
+  snapshot.forEach((childSnapshot) => {
+    const token = childSnapshot.val().token;
+    registrationTokens.push(token);
+  });
+  console.log('Initial tokens: ', registrationTokens);
+});
 
 expApp.get('/', function (req, res) {
   res.send('Hello Sir')
@@ -22,8 +34,11 @@ expApp.get('/', function (req, res) {
 
 
 expApp.post('/registerDevice', function (req, res) {
-  if (!registrationTokens.includes(req.body.token)){
-    registrationTokens.push(req.body.token);
+  const token = req.body.token;
+  if (!registrationTokens.includes(token)){
+    registrationTokens.push(token);
+    const tokensRef = db.ref('registrationTokens');
+    tokensRef.push({ token });
   }
   console.log("tokens: ", registrationTokens);
   res.send("Done")
