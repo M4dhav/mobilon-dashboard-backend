@@ -22,7 +22,9 @@ expApp.get('/', function (req, res) {
 
 
 expApp.post('/registerDevice', function (req, res) {
-  registrationTokens.push(req.body.token);
+  if (!registrationTokens.includes(req.body.token)){
+    registrationTokens.push(req.body.token);
+  }
   console.log("tokens: ", registrationTokens);
   res.send("Done")
 })
